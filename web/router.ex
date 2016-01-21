@@ -19,6 +19,14 @@ defmodule BNote.Router do
     get "/", PageController, :index
   end
 
+  scope "/notes", BNote do
+    pipe_through :api
+    get "/", NoteController, :get_notes
+    get "/:book", NoteController, :get_notes
+    get "/:book/:chapter", NoteController, :get_notes
+    get "/:book/:chapter/:verse", NoteController, :get_notes
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", BNote do
   #   pipe_through :api
