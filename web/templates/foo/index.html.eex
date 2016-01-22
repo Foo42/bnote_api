@@ -1,0 +1,32 @@
+<h2>Listing foo</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Body</th>
+      <th>Book</th>
+      <th>Chapter</th>
+      <th>Verse</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for foo <- @foo do %>
+    <tr>
+      <td><%= foo.body %></td>
+      <td><%= foo.book %></td>
+      <td><%= foo.chapter %></td>
+      <td><%= foo.verse %></td>
+
+      <td class="text-right">
+        <%= link "Show", to: foo_path(@conn, :show, foo), class: "btn btn-default btn-xs" %>
+        <%= link "Edit", to: foo_path(@conn, :edit, foo), class: "btn btn-default btn-xs" %>
+        <%= link "Delete", to: foo_path(@conn, :delete, foo), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<%= link "New foo", to: foo_path(@conn, :new) %>
