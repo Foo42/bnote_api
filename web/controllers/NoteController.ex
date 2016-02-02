@@ -15,6 +15,13 @@ defmodule BNote.NoteController do
       |> Dict.take(["book", "chapter", "verse"])
       |> Enum.map(fn {k,v} -> {String.to_existing_atom(k), v}end)
       |> Enum.into(%{})
+
     struct(BNote.Reference, fields)
+      |> expand_bookname
+  end
+
+  defp expand_bookname(%BNote.Reference{book: bookname} = reference) do
+    {:ok, full_name} = BNote.Booknames.to_full(bookname)
+    %BNote.Reference{reference | book: full_name}
   end
 end
