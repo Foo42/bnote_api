@@ -3,7 +3,15 @@ defmodule BNote.FileStore.NoteFile do
   require Logger
 
   def serialise(%Note{body: body} = note) do
-    body #for now
+    note
+      |> Poison.Encoder.encode([])
+  end
+
+  defp meta_data(%Note{} = note) do
+    note
+      |> Map.drop([:body, :__struct__])
+      |> Enum.reject(fn {_,value} -> value == nil end)
+      |> Enum.into(%{})
   end
 
   def read!(path) do
