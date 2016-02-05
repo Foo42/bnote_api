@@ -9,6 +9,25 @@ defmodule BNote.NoteController do
     text conn, inspect(notes)
   end
 
+  def create(conn, params) do
+    note = params
+      |> extract_note
+      |> BNote.FileStore.store_note
+
+    put_status conn, 201
+    put_resp_header conn, "location", note_url(note)
+    text conn, "created"
+  end
+
+  defp note_url(note) do
+    "/notes/#{note.id}"
+  end
+
+  defp extract_note(params) do
+    about = params["about"] |> extract_reference
+    %BNote.Note{primary_references: [about], body: params["body"]}
+  end
+
   defp extract_reference(params) do
     fields =
       params

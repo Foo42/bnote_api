@@ -1,5 +1,26 @@
 defmodule BNote.FileStore do
+  alias BNote.Note
+  alias BNote.FileStore.NoteFile
+  alias BNote.Reference
   require Logger
+
+  def store_note(%Note{id: nil} = note) do
+    %Note{note | id: 42} |> store_note
+  end
+
+  def store_note(%Note{} = note) do
+    Logger.debug "storing #{inspect note}"
+
+    base_notes_path
+      |> Path.join("#{note.id}.note.md")
+      |> File.write!(NoteFile.serialise(note))
+
+    note
+  end
+
+  def base_notes_path do
+    BNote.FileStore.Paths.base_path |> Path.join("notes")
+  end
 
   def get_notes(%BNote.Reference{} = reference) do
     paths = BNote.FileStore.Paths.glob_paths_for reference

@@ -25,6 +25,8 @@ defmodule BNote.Router do
     get "/:book", NoteController, :get_notes
     get "/:book/:chapter", NoteController, :get_notes
     get "/:book/:chapter/:verse", NoteController, :get_notes
+
+    post "/", NoteController, :create
   end
 
   # Other scopes may use custom stacks.
