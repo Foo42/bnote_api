@@ -11,25 +11,41 @@ defmodule BNote.FileStore do
   def store_note(%Note{} = note) do
     Logger.debug "storing #{inspect note}"
 
-    base_notes_path
-      |> Path.join("#{note.id}.note.md")
+    note
+      |> path_for_note
       |> File.write!(NoteFile.serialise(note))
 
+    BNote.GenIndex.rebuild_index BNote.FileStore.ReferenceIndex
+
     note
+  end
+
+  def path_for_note(%Note{id: id}) do
+    path_for_note id
+  end
+
+  def path_for_note(id) do
+    base_notes_path
+      |> Path.join("#{id}.note.md")
   end
 
   def base_notes_path do
     BNote.FileStore.Paths.base_path |> Path.join("notes")
   end
 
+  def get_all_notes() do
+    Path.join([base_notes_path, "**", "*.note.md"])
+    |> Path.wildcard
+    |> read_notes_at
+  end
+
   def get_notes(%BNote.Reference{} = reference) do
-    paths = BNote.FileStore.Paths.glob_paths_for reference
+    key =
+      reference
+      |> BNote.Reference.to_part_list
 
-    Logger.debug "paths: #{inspect paths}"
-
-    paths
-      |> Enum.map(&Path.wildcard(&1))
-      |> List.flatten
+    BNote.GenIndex.get(BNote.FileStore.ReferenceIndex, key)
+      |> Enum.map(&path_for_note/1)
       |> read_notes_at
   end
 
@@ -38,7 +54,7 @@ defmodule BNote.FileStore do
     paths
     |> Enum.map(&{&1, Task.async(fn -> read_note_at(&1) end)})
     |> Enum.map(fn {path, getting_text} -> {path, Task.await(getting_text)} end)
-    |> Enum.map(fn {path, body} -> %{path: path, body: body} end)
+    |> Enum.map(fn {path, body} -> body end)
   end
 
   def read_note_at(path) do

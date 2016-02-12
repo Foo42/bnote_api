@@ -16,7 +16,28 @@ defmodule BNote.FileStore.NoteFile do
 
   def read!(path) do
     Logger.info "reading note from file at: #{path}"
-    {:ok, f} = File.open path, [:read, :utf8]
-    IO.read f, :all
+    path
+      |> File.read!
+      |> deserialise
   end
+
+  def deserialise(json_string) when is_binary(json_string), do: Poison.Parser.parse!(json_string) |> deserialise
+  def deserialise(%{} = json) do
+    values =
+      json
+      |> Enum.map(fn {k,v} -> {String.to_existing_atom(k), v} end)
+      |> Enum.into(%{})
+      |> deserialise_references
+    struct Note, values
+  end
+
+  def deserialise_references(%{primary_references: references} = values) do
+    deserialised =
+    references
+      |> Enum.map(&BNote.Reference.from_json/1)
+
+    %{values | primary_references: deserialised}
+  end
+
+  def deserialise_references(x), do: x
 end

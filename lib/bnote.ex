@@ -9,6 +9,7 @@ defmodule BNote do
     children = [
       # Start the endpoint when the application starts
       supervisor(BNote.Endpoint, []),
+      supervisor(BNote.FileStore.Indexing.Supervisor, []),
       # Here you could define other workers and supervisors as children
       # worker(BNote.Worker, [arg1, arg2, arg3]),
     ]

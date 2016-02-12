@@ -10,5 +10,5 @@ defmodule BNote.FileStore.Paths do
   end
 
   def base_path(), do: System.get_env("BASE_PATH")
-  def base_path(:notes_by_passage), do: [base_path,"notes","by_passage"] |> Path.join
+  def base_path(:notes_by_passage), do: [base_path,"indexes","notes_by_passage"] |> Path.join
 end

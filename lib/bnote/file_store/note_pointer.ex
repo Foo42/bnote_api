@@ -11,5 +11,9 @@ defmodule BNote.FileStore.NotePointer do
     end
   end
 
+  def pointer_to(%BNote.Note{id: id}) do
+    Path.relative_to(BNote.FileStore.Paths.base_path, BNote.FileStore.path_to_note)
+  end
+
   def read_final_destination(pointer_file_name), do: pointer_file_name |> resolve |> File.read!
 end
