@@ -21,6 +21,16 @@ defmodule BNote.FileStore.NoteFile do
       |> deserialise
   end
 
+  def read(path) do
+    Logger.info "reading note from file at: #{path}"
+    case File.read(path) do
+      {:ok, body} -> {:ok, deserialise(body)}
+      {:error, reason} ->
+        Logger.debug "failed to read #{path}, with error #{inspect reason}"
+        {:error, reason}
+    end
+  end
+
   def deserialise(json_string) when is_binary(json_string), do: Poison.Parser.parse!(json_string) |> deserialise
   def deserialise(%{} = json) do
     values =

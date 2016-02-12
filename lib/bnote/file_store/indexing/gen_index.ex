@@ -41,18 +41,21 @@ defmodule BNote.GenIndex do
       key
       |> key_to_path("*", base_path)
       |> Path.wildcard
-      |> get_target_id
+      |> Enum.map(&get_target_id/1)
       |> Enum.uniq
 
     {:reply, note_ids, state}
   end
 
   defp get_target_id(path) do
-    path
-      |> Enum.map(&Path.split/1)
-      |> Enum.map(&List.last/1)
-      |> Enum.map(&String.split(&1, "."))
-      |> Enum.map(&Enum.at(&1, 0))
+    regex = ~r{(?<id>.*)\.note\.id}
+    filename =
+      path
+      |> Path.split
+      |> List.last
+
+    %{"id" => id} = Regex.named_captures(regex, filename)
+    id
   end
 
   def to_file_command(base_path, {key, target}) do

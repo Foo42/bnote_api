@@ -11,7 +11,7 @@ defmodule BNote do
       supervisor(BNote.Endpoint, []),
       supervisor(BNote.FileStore.Indexing.Supervisor, []),
       # Here you could define other workers and supervisors as children
-      # worker(BNote.Worker, [arg1, arg2, arg3]),
+      worker(BNote.FileStore, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

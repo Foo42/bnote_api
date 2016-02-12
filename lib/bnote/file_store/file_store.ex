@@ -4,21 +4,30 @@ defmodule BNote.FileStore do
   alias BNote.Reference
   require Logger
 
-  def store_note(%Note{id: nil} = note) do
-    %Note{note | id: 42} |> store_note
-  end
+  use GenServer
+  @name __MODULE__
 
-  def store_note(%Note{} = note) do
-    Logger.debug "storing #{inspect note}"
+  def start_link, do: GenServer.start_link(__MODULE__, %{counter: 0}, name: @name)
+  def store_note(%Note{} = note), do: GenServer.call(@name, {:store_note, note})
 
+  #######################
+  def handle_call({:store_note, %Note{} = note}, _from, state) do
+    note = ensure_has_id(note)
     note
       |> path_for_note
       |> File.write!(NoteFile.serialise(note))
 
     BNote.GenIndex.rebuild_index BNote.FileStore.ReferenceIndex
 
-    note
+    {:reply, note, state}
   end
+
+  def ensure_has_id(%Note{id: nil} = note) do
+    {:ok, id} = Timex.Date.universal |> Timex.DateFormat.format("{ISO}")
+    %Note{note | id: id}
+  end
+
+  def ensure_has_id(%Note{} = note), do: note
 
   def path_for_note(%Note{id: id}) do
     path_for_note id
@@ -54,12 +63,15 @@ defmodule BNote.FileStore do
     paths
     |> Enum.map(&{&1, Task.async(fn -> read_note_at(&1) end)})
     |> Enum.map(fn {path, getting_text} -> {path, Task.await(getting_text)} end)
-    |> Enum.map(fn {path, body} -> body end)
+    |> Enum.flat_map(fn
+      {path, {:ok, body}} -> [body]
+      _ -> []
+    end)
   end
 
   def read_note_at(path) do
     path
       |> BNote.FileStore.NotePointer.resolve
-      |> BNote.FileStore.NoteFile.read!
+      |> BNote.FileStore.NoteFile.read
   end
 end
