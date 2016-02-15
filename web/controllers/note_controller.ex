@@ -1,6 +1,10 @@
 defmodule BNote.NoteController do
   use BNote.Web, :controller
 
+  def new(conn, _params) do
+    render conn, "new.html"
+  end
+
   def get_notes(conn, params) do
     notes =
       params
@@ -24,11 +28,15 @@ defmodule BNote.NoteController do
   end
 
   defp extract_note(params) do
-    about = params["about"] |> extract_reference
+    about = params |> extract_reference
     %BNote.Note{primary_references: [about], body: params["body"]}
   end
 
-  defp extract_reference(params) do
+  defp extract_reference(%{"book" => _} = params) do
+    about = params |> Dict.take(~w{book chapter verse})
+    extract_reference(%{"about" => about})
+  end
+  defp extract_reference(%{"about" => params}) do
     fields =
       params
       |> Dict.take(["book", "chapter", "verse"])

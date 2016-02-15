@@ -1,0 +1,25 @@
+<form method="post">
+  <div class="input_wrapper center_block">
+    <label>Book</label>
+    <input id="book" type="text" rows="5"></input>
+  </div>
+
+  <div class="input_wrapper center_block">
+    <label>Chapter</label>
+    <input id="chapter" type="number" value="1"></input>
+  </div>
+
+  <div class="input_wrapper center_block">
+    <label>Verse</label>
+    <input id="verse" type="number" value=""></input>
+  </div>
+
+  <div class="input_wrapper center_block">
+    <label>Note</label>
+    <input id="body" type="textarea"></input>
+  </div>
+
+  <div class="input_wrapper center_block">
+    <input type="submit" value="Save" class="button"></div>
+  </div>
+</form>

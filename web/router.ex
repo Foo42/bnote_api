@@ -16,8 +16,14 @@ defmodule BNote.Router do
   scope "/", BNote do
     pipe_through :browser # Use the default browser stack
 
-    get "/", PageController, :index
+    get "/", NoteController, :index
+
+    scope "/notes" do
+      get "/new", NoteController, :new
+      post "/new", NoteController, :create
+    end
   end
+
 
   scope "/notes", BNote do
     pipe_through :api
