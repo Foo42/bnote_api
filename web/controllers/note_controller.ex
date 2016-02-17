@@ -6,11 +6,16 @@ defmodule BNote.NoteController do
   end
 
   def get_notes(conn, params) do
-    notes =
+    reference =
       params
       |> extract_reference
-      |> BNote.FileStore.get_notes
-    text conn, inspect(notes)
+
+    notes = case Map.get(params, "recurse") do
+      "true" -> BNote.FileStore.get_notes(reference, recurse: true)
+      _ -> BNote.FileStore.get_notes(reference)
+    end
+
+    json conn, notes
   end
 
   def create(conn, params) do

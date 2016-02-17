@@ -63,7 +63,9 @@ defmodule BNote.GenIndex do
     {:write, {path, inspect(target)}}
   end
 
-  def key_to_path(key, target, base_path), do: Path.join([base_path] ++ key ++ ["#{target}.note.id"])
+  def key_to_path(key, target, base_path) do
+    Path.join([base_path] ++ key ++ ["#{target}.note.id"])
+  end
 
   defp to_file_system({:write, {path, contents}}) do
     path

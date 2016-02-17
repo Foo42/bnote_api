@@ -48,15 +48,32 @@ defmodule BNote.FileStore do
     |> read_notes_at
   end
 
-  def get_notes(%BNote.Reference{} = reference) do
-    key =
-      reference
-      |> BNote.Reference.to_part_list
+  def get_notes(%BNote.Reference{} = reference, options \\ []) do
+    keys = keys_to_fetch(reference, options)
 
-    BNote.GenIndex.get(BNote.FileStore.ReferenceIndex, key)
+    keys
+      |> Enum.flat_map(&BNote.GenIndex.get(BNote.FileStore.ReferenceIndex, &1))
       |> Enum.map(&path_for_note/1)
+      |> Enum.dedup
       |> read_notes_at
   end
+
+  def keys_to_fetch(%BNote.Reference{} = reference, options) do
+    base_key =
+      reference
+      |> BNote.Reference.to_part_list
+      |> Enum.map(fn
+        s when is_binary(s) -> s
+        n when is_integer(n) -> Integer.to_string(n)
+      end)
+
+    [base_key] ++ derive_keys(base_key, options)
+  end
+
+  def derive_keys(key, []), do: []
+  def derive_keys([_,_,_], _), do: []
+  def derive_keys([b], recurse: true), do: [[b,"*"]] ++ derive_keys([b,"*"], recurse: true)
+  def derive_keys([b,c], recurse: true), do: [[b,c,"*"]]
 
   def read_notes_at(paths) when is_list(paths) do
     Logger.info "readings notes from paths: #{inspect paths}"
