@@ -48,6 +48,12 @@ defmodule BNote.FileStore do
     |> read_notes_at
   end
 
+  def get_note_by_id(id) do
+    id
+      |> path_for_note
+      |> read_note_at
+  end
+
   def get_notes(%BNote.Reference{} = reference, options \\ []) do
     keys = keys_to_fetch(reference, options)
 

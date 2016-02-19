@@ -24,13 +24,17 @@ defmodule BNote.Router do
     end
   end
 
-
   scope "/notes", BNote do
     pipe_through :api
     get "/", NoteController, :get_notes
-    get "/:book", NoteController, :get_notes
-    get "/:book/:chapter", NoteController, :get_notes
-    get "/:book/:chapter/:verse", NoteController, :get_notes
+
+    get "/:note_id", NoteController, :get_note_by_id
+
+    scope "/for"  do
+      get "/:book", NoteController, :get_notes
+      get "/:book/:chapter", NoteController, :get_notes
+      get "/:book/:chapter/:verse", NoteController, :get_notes
+    end
 
     post "/", NoteController, :create
   end

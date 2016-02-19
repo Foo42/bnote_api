@@ -5,6 +5,11 @@ defmodule BNote.NoteController do
     render conn, "new.html"
   end
 
+  def get_note_by_id(conn, %{"note_id" => id} = params)do
+    {:ok, note} = BNote.FileStore.get_note_by_id id
+    json conn, note
+  end
+
   def get_notes(conn, params) do
     reference =
       params
