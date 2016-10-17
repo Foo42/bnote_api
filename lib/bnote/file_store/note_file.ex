@@ -1,5 +1,6 @@
 defmodule BNote.FileStore.NoteFile do
   alias BNote.Note
+  alias BNote.Reference
   require Logger
 
   def serialise(%Note{body: body} = note) do
@@ -44,7 +45,10 @@ defmodule BNote.FileStore.NoteFile do
   def deserialise_references(%{primary_references: references} = values) do
     deserialised =
     references
-      |> Enum.map(&BNote.Reference.from_json/1)
+      |> Enum.map(fn
+        %{"start" => start, "end" => last} -> %{start: Reference.from_json(start), end: Reference.from_json(last)}
+        reference -> Reference.from_json(reference)
+      end)
 
     %{values | primary_references: deserialised}
   end

@@ -1,4 +1,8 @@
 defmodule BNote.Reference do
+  defmodule Range do
+    defstruct start: nil, end: nil
+  end
+  
   defstruct book: nil, chapter: nil, verse: nil
 
   def to_part_list(%__MODULE__{book: book, chapter: nil, verse: nil}), do: [book]
